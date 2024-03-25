@@ -121,3 +121,30 @@ class Colorize(object):
             color_image[2][mask] = self.cmap[label][2]
 
         return color_image
+
+def read_bmp_np(filename):
+    with open(filename, "rb") as f:
+        bfType = str(f.read(2))
+        bfSize = int.from_bytes(f.read(4), "little")
+        bfReserved1 = int.from_bytes(f.read(2), 'big')
+        bfReserved2 = int.from_bytes(f.read(2), 'big')
+        bfOffBits = int.from_bytes(f.read(4), 'little')
+        
+        biSize = int.from_bytes(f.read(4), 'little')
+        biWidth = int.from_bytes(f.read(4), 'little')
+        biHeight = int.from_bytes(f.read(4), 'little')
+        biPlanes = int.from_bytes(f.read(2), 'little')
+        biBitCount = int.from_bytes(f.read(2), 'little')
+        biCompression = int.from_bytes(f.read(4), 'little')
+        biSizeImage = int.from_bytes(f.read(4), 'little')
+        biXPelsPerMeter = int.from_bytes(f.read(4), 'little')
+        biYPelsPerMeter = int.from_bytes(f.read(4), 'little')
+        biClrUsed = int.from_bytes(f.read(4), 'little')
+        biClrImportant = int.from_bytes(f.read(4), 'little')
+
+        img_stream = np.frombuffer(f.read(biSizeImage), dtype=np.uint8)
+
+    image = img_stream.reshape(biHeight, biWidth, biBitCount // 8)
+    image = image[::-1, :, :]
+    
+    return image

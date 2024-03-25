@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
+
+from torch.utils.data import DataLoader
+
 import torchvision
 import torchvision.transforms as transforms
 import numpy as np
@@ -15,6 +18,59 @@ import cv2
 from PIL import Image
 from base_dataset import BaseDataset, get_params, get_transform
 import json
+
+
+
+
+import pytorch_lightning as pl
+
+
+class UnpairedDepthDataModule(pl.LightningDataModule):
+    def __init__(self, root, root2, opt, transform_r=None, batch_size=4, num_workers=4, midas=False, depthroot=''):
+        super().__init__()
+        self.root = root
+        self.root2 = root2
+        self.opt = opt
+        self.transform_r = transform_r
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.midas = midas
+        self.depthroot = depthroot
+
+    def setup(self, stage=None):
+        # Assign train/val datasets for use in dataloaders
+        if stage == 'fit' or stage is None:
+            self.train_dataset = UnpairedDepthDataset(
+                root=self.root,
+                root2=self.root2,
+                opt=self.opt,
+                transforms_r=self.transform_r,
+                mode='train',
+                midas=self.midas,
+                depthroot=self.depthroot
+            )
+            # You can also set up a separate validation dataset here
+        if stage == 'test' or stage is None:
+            self.test_dataset = UnpairedDepthDataset(
+                root=self.root,
+                root2=self.root2,
+                opt=self.opt,
+                transforms_r=self.transform_r,
+                mode='test',
+                midas=self.midas,
+                depthroot=self.depthroot
+            )
+    
+    def train_dataloader(self):
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
+
+    def val_dataloader(self):
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+    
+    def test_dataloader(self):
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+
+
 
 IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG']
 

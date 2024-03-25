@@ -48,9 +48,9 @@ class WebuiAPI:
 
         # Prepare the data payload
         data = {
-            "prompt": f"black ais-lineart, a sketch of a {prompt}, <lora:Line_Art_SDXL:1.2>",
-            "negative_prompt": 
-                "nsfw",
+            "prompt": f"ais-lineart, a {prompt}, <lora:Line_Art_SDXL:1.2>",
+            "negative_prompt":
+                "bad, worst",
             "seed": seed,
             "steps": steps,
             "cfg_scale": cfg_scale,
@@ -74,7 +74,7 @@ class WebuiAPI:
                     "args": [{
                         "input_image": encoded_image,
                         "model": "diffusers_xl_canny_full [2b69fca4]",
-                        "weight": 0.6,
+                        "weight": 0.5,
                         "resize_mode": 0
                     }]
                 }

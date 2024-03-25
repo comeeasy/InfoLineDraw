@@ -1,20 +1,20 @@
 export CUDA_VISIBLE_DEVICES=1
 
-img_dir="/home/joono/informative-drawings/pseudo_img_sketch_dataset/imgs"
-sketch_dir="/home/joono/informative-drawings/pseudo_img_sketch_dataset/sketches"
-depth_dir="/home/joono/informative-drawings/pseudo_img_sketch_dataset/depths"
+img_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/imgs"
+sketch_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/sketches"
+depth_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/depths"
 
 for arg in "$@"
 do
 case $arg in
     depth)
     ### Generate depth maps ###
-    cd /home/joono/informative-drawings/BoostingMonocularDepth
-    python run.py --Final --max_res 2000 --data_dir $img_dir --output_dir $depth_dir  --depthNet 0
+    cd ./BoostingMonocularDepth
+    python run.py --Final --max_res 3000 --data_dir $img_dir --output_dir $depth_dir  --depthNet 0
     ;;
     train)
     ### Train ###
-    cd /home/joono/informative-drawings
+    cd .
     python train.py \
         --name 240322_2309_test \
         --dataroot $img_dir \
@@ -22,11 +22,11 @@ case $arg in
         --root2 $sketch_dir \
         --cuda \
         --batchSize 3 \
-        --save_epoch_freq 100 \
-        --n_epochs 1000 \
+        --save_epoch_freq 20 \
+        --n_epochs 100 \
         --log_int 10 \
         --size 512 \
-        --n_cpu 16 \
+        --n_cpu 8 \
         --n_blocks 6 \
         --load_size 574 \
         --crop_size 512 \
