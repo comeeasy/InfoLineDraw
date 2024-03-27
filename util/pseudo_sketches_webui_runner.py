@@ -13,8 +13,8 @@ from io import BytesIO
 
 
 class WebuiAPI:
-    def __init__(self) -> None:
-        self.url = "http://127.0.0.1:7860"
+    def __init__(self, url="http://127.0.0.1:7860") -> None:
+        self.url = url
         self.__set_model()
 
     def get_available_loras(self) -> requests.Response:
