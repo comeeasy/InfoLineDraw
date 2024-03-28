@@ -123,6 +123,9 @@ class Colorize(object):
         return color_image
 
 def read_bmp_np(filename):
+    # bmp 파일을 cv2나 PIL로 읽으면 에러가 남. 
+    # 직접 정의한 함수로 읽어와야함.
+    
     with open(filename, "rb") as f:
         bfType = str(f.read(2))
         bfSize = int.from_bytes(f.read(4), "little")

@@ -13,8 +13,8 @@ from io import BytesIO
 
 
 class WebuiAPI:
-    def __init__(self) -> None:
-        self.url = "http://127.0.0.1:7860"
+    def __init__(self, url) -> None:
+        self.url = url
         self.__set_model()
 
     def get_available_loras(self) -> requests.Response:
@@ -23,7 +23,7 @@ class WebuiAPI:
         response = requests.get(url=url)
         # Check the response (optional)
         if response.status_code == 200:
-            print("Request successful.")
+            pass
         else:
             print(f"Request failed with status code {response.status_code}.")
             
@@ -74,7 +74,7 @@ class WebuiAPI:
                     "args": [{
                         "input_image": encoded_image,
                         "model": "diffusers_xl_canny_full [2b69fca4]",
-                        "weight": 0.5,
+                        "weight": 0.7,
                         "resize_mode": 0
                     }]
                 }
@@ -83,16 +83,11 @@ class WebuiAPI:
             data["width"] = sketch.shape[0]
             data["height"] = sketch.shape[1]
             
-
-        # print what images are generated
-        print(f"\"{data['prompt']}\" {'' if sketch is None else 'by sketch'} is generating...")
-
         # Make the POST request
         response = requests.post(url, headers=headers, data=json.dumps(data))
 
         # Check the response (optional)
         if response.status_code == 200:
-            print("Request successful.")
             return self.response_to_pil(response)
         else:
             print(f"Request failed with status code {response.status_code}.")

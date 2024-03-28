@@ -374,7 +374,7 @@ viaticum
 distance
 dubiety
 agility ladder
-role-playing games (rpgs)
+role-playing games
 conciliate
 braided locs hair boy
 escritoire
@@ -511,7 +511,7 @@ fruit slicer
 sleeping kookaburra
 crop duster
 security blanket
-lcv (light commercial vehicle)
+lcv
 crownwork
 costar
 rest
@@ -766,7 +766,7 @@ bowl of flour
 half araza
 georgette
 ornate brass floor lamp
-massively multiplayer online (mmo)
+massively multiplayer online
 witness testimony
 test
 place mat
@@ -853,7 +853,7 @@ conch
 voiceover community
 dishwashing eco-friendly cleaner
 english accent
-cpu (central processing unit)
+cpu
 expectation
 grandfather clock
 colorful pentagon
@@ -960,7 +960,7 @@ hair extensions
 pet photography
 university
 dive
-artificial intelligence (ai)
+artificial intelligence
 elegant silver sugar bowl
 hockey elbow pads
 criminal organization
@@ -1646,7 +1646,7 @@ angry fly
 an entrance of actresses
 work pants
 chiropractor
-a pity/a gang of prisoners
+a gang of prisoners
 hockey stick	hood	hairspray
 bornean tiger
 chemotherapy
@@ -2583,7 +2583,7 @@ ice maker
 clockwork
 cheese affogato
 ski pants
-a pack of bears (polar bears)
+a pack of bears
 diction
 applicability
 effeminate
@@ -4046,7 +4046,6 @@ emblematic
 vertex
 crystallization
 opposite
-4x4 (four-wheel drive)
 macaroni
 interjection
 laboratory safety
@@ -4444,7 +4443,8 @@ body spray
 cold sore
 twin bed
 switch
-autumn/fall
+autumn
+fall
 employer
 reward
 congratulate
@@ -5404,7 +5404,7 @@ olive
 partial massage
 hang glider
 talud
-crime scene investigation (csi)
+crime scene investigation
 peneplain
 functional ceramic flower pot
 angry electric eel
@@ -5596,7 +5596,7 @@ fishing reel
 colorful nonagon
 boatlift
 federal
-suv (sport utility vehicle)
+sport utility vehicle
 french beans in the basket
 florida strangler fig in the basket
 driven
@@ -5890,7 +5890,7 @@ cellular
 jelly chair
 edifice
 plastic drawer dividers
-a mess/an execution of officers
+a mess of officers
 brass polish
 musca
 wine tasting fundraiser celebrities
@@ -6069,7 +6069,7 @@ electronic
 arrow head
 half naranjilla
 english invasion
-real-time strategy (rts)
+real-time strategy
 bike shift cable
 cast iron skillet
 elephant seal
@@ -6419,7 +6419,7 @@ ringleader
 penguin
 door handle
 consortium
-fwd (front-wheel drive)
+front-wheel drive
 brass garden hose
 flatwork
 shame
@@ -6912,7 +6912,7 @@ allen wrench
 ice chair
 relative
 eden
-follicular unit extraction (fue)
+follicular unit extraction
 jinxed
 theory
 paint mixing cup
@@ -7084,7 +7084,7 @@ olive tree
 blood test
 bumper boats
 angry emu
-international olympic committee (ioc)
+international olympic committee
 classmate
 crime scene
 presentation
@@ -8449,7 +8449,6 @@ woodworking clamp
 contradiction
 digital photography
 yogin
-indices /indexes
 pickup truck lcv
 golf towel
 ovation
@@ -8738,7 +8737,7 @@ volition
 resting paramedic
 potholder
 ratan chair
-cio (chief information officer)
+chief information officer
 bike tubeless tire valve cap
 zamboni
 xiphias
@@ -9051,7 +9050,7 @@ car rearview mirror
 variety
 fresh fruit
 long exposure photography
-willis tower (formerly sears tower)
+willis tower
 half cacao
 taper fade hair boy
 weighted vest
@@ -9655,7 +9654,7 @@ bookstore
 resting catholic nun
 fire hydrant
 adjective
-internet of things (iot)
+internet of things
 irrawaddy dolphin
 dental picks
 relatives
@@ -9725,7 +9724,7 @@ grinder
 angry english springer spaniel
 bench
 filet knife
-director of photography (dp)
+director of photography
 roulette wheel
 functional ceramic plant pot
 kitchen shears
@@ -9751,7 +9750,7 @@ indifference
 pelagic zone
 fencing lame
 frock
-grand theft auto (gta)
+grand theft auto
 roomba
 concise
 ice table
@@ -10169,10 +10168,10 @@ waterworks
 map
 rat is eating food
 self-regulation
-ict (information and communication technology)
+information and communication technology
 sapodilla in the basket
 possible
-it (information technology)
+information technology
 aroma diffuser
 gynecologist
 towel tub
@@ -10321,7 +10320,7 @@ metal polish
 adherence
 crystal wine bottle stopper
 rippling muscles
-a line of kings/rulers
+a line of kings
 craft fair
 wood plane
 fanlight
@@ -11002,7 +11001,7 @@ cropped pants
 dull
 dulcimer
 nickel wine haven
-go/no-go gauge
+gauge
 crumb
 kaffiyeh
 timeless gold-plated vase
@@ -11451,7 +11450,7 @@ ailment
 decorative
 hair brush
 jodhpur
-augmented reality (ar)
+augmented reality
 stereoscope
 minibar
 wine tasting fundraiser schemes
@@ -11956,7 +11955,7 @@ salad chopper
 shirtsleeve
 jacob's ladder
 sleeping dolphin
-virtual reality (vr)
+virtual reality
 shaving gel
 reliable internet
 lunchroom supervisor
@@ -12102,7 +12101,7 @@ sousaphone
 opener
 bender
 top knot
-lob (long bob) hair boy
+long bob hair boy
 jinrikisha
 octagon
 billfold
@@ -12110,7 +12109,7 @@ silkscreen
 winter melon in the basket
 pole
 eyebrow gel
-follicular unit transplantation (fut)
+follicular unit transplantation
 leather pouf
 annotation
 bump
@@ -12500,7 +12499,7 @@ e-library
 juice
 solitary animal
 day bed
-mdf (medium-density fiberboard)
+medium-density fiberboard
 school uniform
 golf bag
 kickstand
@@ -13657,7 +13656,7 @@ patio
 consolidate
 latchstring
 workshops
-cto (chief technology officer)
+chief technology officer
 baritone
 belfry
 drowse
@@ -13983,7 +13982,7 @@ whipped cream dispenser
 car door lock repair kit
 winter
 luxurious velvet armchair
-little black dress (lbd)
+little black dress
 metal wall hanging
 cotton tip bowl
 cheese knife set
@@ -14469,7 +14468,7 @@ snowboard goggles
 plug-in hybrid car
 contraception
 karate headgear
-all-terrain vehicle (atv)
+all-terrain vehicle
 jocote in the basket
 strength
 mako shark
@@ -14753,7 +14752,8 @@ twill
 canoe
 heap
 kei apple in the basket
-pool/billiards
+pool
+billiards
 astrophotography
 casual chic attire
 evaporimeter
@@ -14894,7 +14894,7 @@ juke
 angry kodiak bear
 a slant of journalists
 anglerfish
-ram (random access memory)
+random access memory
 compact
 western sand cherry in the basket
 cleanliness
@@ -15410,12 +15410,12 @@ hot pocket
 massage roller
 dodgy
 sock stretcher
-awd (all-wheel drive)
+all-wheel drive
 xanthosoma
 working flight attendant
 tear
 dolor
-turn-based strategy (tbs)
+turn-based strategy
 group
 argument
 alternative
@@ -15678,7 +15678,6 @@ half voavanga fruit
 arracacha
 knapsack
 unison
-role-playing game (rpg)
 pan balance
 crystal-clear waterfall
 narwhal is eating food
@@ -15936,7 +15935,7 @@ freerunning
 extortionist
 microdermabrasion kit
 magnificent bronze angel statue
-platelet-rich plasma (prp) therapy
+platelet-rich plasma therapy
 football field
 sleeping fsleeping alcon
 silk cotton tree
@@ -15969,7 +15968,6 @@ generation
 spawn of umbrellas
 tie-down roping
 pepper grinder
-lob (long bob)
 melon in the basket
 swat team
 crematorium
@@ -16099,7 +16097,7 @@ leather bean bag chair
 sequin
 facial serum
 demonstration
-cfo (chief financial officer)
+chief financial officer
 jacaranda
 giant panda
 wine tasting fundraiser role models
@@ -16875,7 +16873,8 @@ g string
 atmosphere
 swing set
 clothes hangers
-southern lights/aurora australis
+southern lights
+aurora australis
 lifeguard
 chelsea boots
 velvet dining chair covers
@@ -17380,7 +17379,7 @@ fine porcelain plate
 slip gauge
 undercharge
 iron gate
-kpi (key performance indicator)
+key performance indicator
 sleeping arabian horse
 acoustic panel
 elective
@@ -17952,7 +17951,7 @@ stunning crystal chandelier
 wood glue
 car side skirt
 downward
-a plush/a rascal of boys
+a plush of boys
 ice hockey player
 plain
 typewriter
@@ -18139,7 +18138,8 @@ olympic program
 beach towel
 eagle
 program
-a lie/an equivocation of politicians
+a lie 
+an equivocation of politicians
 disgruntled
 wakeboard
 babaco
@@ -18242,7 +18242,7 @@ felt
 chenille
 led mask
 scroll saw
-learning management system (lms)
+learning management system
 character shoes
 internet router
 public transit bus
@@ -18426,7 +18426,7 @@ bouquet
 blissful paradise
 rubbish bin
 knickers
-coo (chief operating officer)
+chief operating officer
 street vendor
 tranquil paradise
 ballot
@@ -18479,7 +18479,7 @@ conversation
 wireless headphones
 majestic orchard
 constitutional
-corporate social responsibility (csr)
+corporate social responsibility
 degrade
 ankle weights
 character actor
@@ -18810,7 +18810,8 @@ discrete
 bamboo tray
 drying mat 2914
 bike torque wrench
-pool/billiards player
+pool
+billiards player
 english sandal
 cargo transporter
 panic
@@ -20397,7 +20398,8 @@ cusp
 a herd of chinchillas
 piping bag
 half lucuma
-uber/lyft
+uber
+lyft
 angry hornbill
 brilliant hue
 antipathy
@@ -21017,7 +21019,7 @@ patent leather
 sleeping llama
 angry boa constrictor
 chunky scarf
-rwd (rear-wheel drive)
+rear-wheel drive
 cummerbund
 amphibian
 angry moorhen
@@ -21438,7 +21440,7 @@ half wild strawberry
 economize
 metal wall sculpture
 panel
-mpv (multi-purpose vehicle)
+multi-purpose vehicle
 scrubber caddy
 double bass
 shoot
@@ -21749,7 +21751,6 @@ aluminum pan
 tomato corer
 binders
 hill
-suv (sports utility vehicle)
 medications
 receptacle
 patch mask
@@ -22340,7 +22341,6 @@ wallaby
 dryer sheet
 hanging swing
 olympic legacy
-ceo (chief executive officer)
 plastic water bottle
 metal container
 european bison
@@ -22446,7 +22446,7 @@ wu shu
 anvil
 cleats
 classic brass table lamp
-cmo (chief marketing officer)
+chief marketing officer
 bike trailer
 an obeisance of servants
 street photographer
@@ -23347,7 +23347,8 @@ vibrant rainbow
 cast iron chiminea
 rosette
 escapist
-northern lights/aurora borealis
+northern lights
+aurora borealis
 birthday
 kookaburra
 spirea
@@ -23905,7 +23906,7 @@ three-dimensional crescent
 knit poufs
 english gin
 alfalfa
-twa (teeny weeny afro) hair boy
+teeny weeny afro hair boy
 eastward
 kudzu vine
 velvet duvet cover
@@ -24511,7 +24512,7 @@ national guard
 popcorn seasoning
 supernatural
 curve
-personal protective equipment (ppe)
+personal protective equipment
 gerbera
 elevation
 tool organizer
@@ -25312,7 +25313,7 @@ mother-in-law
 moho	mouse
 adder
 replacement
-first-person shooter (fps)
+first-person shooter
 versatile bamboo coffee table
 kit
 mustard
