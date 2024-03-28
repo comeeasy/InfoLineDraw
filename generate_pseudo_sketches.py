@@ -13,7 +13,7 @@ from util.util import read_bmp_np
 
 from tqdm import tqdm
 
-
+from multiprocessing import Pool
 
 
 def main(args):
@@ -26,16 +26,20 @@ def main(args):
     
     bmp_sketches_filename = lambda noun_for_c, i: f"{noun_for_c}_{i}.bmp"
     for noun in tqdm(nouns):
-        # noun name for FDoG
-        noun_for_c = noun.replace(" ", "_")
-        # # Generate image
-        txt2sketch(args, api, noun, noun_for_c, bmp_sketches_filename)
+        try:
+            # noun name for FDoG
+            noun_for_c = noun.replace(" ", "_")
+            # # Generate image
+            txt2sketch(args, api, noun, noun_for_c, bmp_sketches_filename)
 
-        # For generated images do..
-        vectorize_gray_sketch(args, noun_for_c, exist_ok=True)
-            
-        # # Generate image using ControlNet with sketch
-        vec2img(args, api, noun_for_c, noun)
+            # For generated images do..
+            vectorize_gray_sketch(args, noun_for_c, exist_ok=True)
+                
+            # # Generate image using ControlNet with sketch
+            vec2img(args, api, noun_for_c, noun)
+        except:
+            with open("error_nouns.txt", "a+") as f:
+                f.write(f"noun\n")
 
 def vec2img(args, api, noun_for_c, noun):
     # Generate image using ControlNet with sketch
@@ -113,6 +117,12 @@ def vectorize_gray_sketch(args, noun_for_c, exist_ok=True):
             vectorized_sketch_path = os.path.join(args.output_dir_vec_basedir, f"{noun_for_c}_{i}_shifted.bmp")
 
             if not exist_ok or not Path(vectorized_sketch_path).exists():
+                
+                # If does rsc_dir exist, it means that there is a process converting sketch to vec-sketch
+                rsc_path = os.path.join(args.output_dir_sketch_basedir, f"{noun_for_c}_{i}_rsc")
+                if Path(rsc_path).exists():
+                    continue
+                
                 # vectorize generated sketch
                 # it save <sketch_path>.bmp -> <sketch_path>_shifted.bmp
                 os.system(f"./FDoG_GUI \"{sketch_path}\" 1> FDoG.log 2> FDoG.log")
@@ -126,8 +136,7 @@ def vectorize_gray_sketch(args, noun_for_c, exist_ok=True):
                 print(f"vec-Sketches of {noun_for_c} are exist. Load existing sketches. {vectorized_sketch_path}")
             
             
-    rsc_path = os.path.join(args.output_dir_sketch_basedir, f"{noun_for_c}*rsc")
-    os.system(f"rm -rf {rsc_path}")
+    os.system(f"rm -rf {os.path.join(args.output_dir_sketch_basedir, f'{noun_for_c}_*_rsc')}")
     
 
 

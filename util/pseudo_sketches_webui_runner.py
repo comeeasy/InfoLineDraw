@@ -127,7 +127,7 @@ class WebuiAPI:
         
         # Check the response (optional)
         if response.status_code == 200:
-            print("Request successful.")
+            pass
         else:
             print(f"Request failed with status code {response.status_code}.")
             

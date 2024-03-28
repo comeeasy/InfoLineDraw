@@ -27,6 +27,16 @@ conda activate drawings
 pip install git+https://github.com/openai/CLIP.git
 ```
 
+## Generate Pseudo sketch-image pairs
+```bash
+python generate_pseudo_sketches.py --input_txt=nouns_to_generate.txt --output_dir=<path_to_save> --txt2sktch
+python generate_pseudo_sketches.py --input_txt=nouns_to_generate.txt --output_dir=<path_to_save> --sktch2vec
+python generate_pseudo_sketches.py --input_txt=nouns_to_generate.txt --output_dir=<path_to_save> --vec2img
+python generate_pseudo_sketches.py --input_txt=nouns_to_generate.txt --output_dir=<path_to_save> --txt2sktch --sktch2vec --sktch2vec
+
+python generate_pseudo_sketches.py --input_txt=nouns_to_generate.txt --output_dir=<path_to_save> --vec2img --url=<AUTOMATIC1111_webui_url>
+```
+
 ## Testing
 Pre-trained model is available [here](https://drive.google.com/file/d/11l5u5sb1PO5Z5YA3IoEHauVPm0k407C1/view?usp=sharing), place the model weights in `checkpoints`.
 
