@@ -13,7 +13,7 @@ from io import BytesIO
 
 
 class WebuiAPI:
-    def __init__(self, url) -> None:
+    def __init__(self, url="http://127.0.0.1:7860") -> None:
         self.url = url
         self.__set_model()
 

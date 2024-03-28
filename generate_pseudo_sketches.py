@@ -22,7 +22,7 @@ def main(args):
         nouns = list(map(lambda x: x.strip(), file.readlines()))
     
     # Initiate webui runner to run Stable Diffusion
-    api = WebuiAPI()
+    api = WebuiAPI(args.url)
     
     bmp_sketches_filename = lambda noun_for_c, i: f"{noun_for_c}_{i}.bmp"
     for noun in tqdm(nouns):
@@ -98,7 +98,7 @@ def txt2sketch(args, api, noun, noun_for_c, bmp_sketches_filename):
         print(f"Sketches of {noun} are exist. Load existing sketches. {bmp_sketches_first_filename}")
 
 def vectorize_gray_sketch(args, noun_for_c, exist_ok=True):
-    vectorized_sketch_filename = lambda noun_for_c, i: f"{noun_for_c}_{i}_shifted.bmp"
+    # vectorized_sketch_filename = lambda noun_for_c, i: f"{noun_for_c}_{i}_shifted.bmp"
     
     if not args.sktch2vec:
         return
@@ -142,6 +142,7 @@ if __name__ == "__main__":
                             help="Spedify directory path to save results")
     parser.add_argument('--sketch_batch_size', type=int, default=1, help='sketch batch size')
     parser.add_argument('--seed', type=int, default=-1)
+    parser.add_argument('--url', type=str, default="http://127.0.0.1:7860", help="url for running webui of AUTOMATIC1111")
     parser.add_argument('--txt2sktch', action='store_true')
     parser.add_argument('--sktch2vec', action='store_true')
     parser.add_argument('--vec2img', action='store_true')
@@ -167,6 +168,7 @@ if __name__ == "__main__":
     print(f"output_dir: {args.output_dir}")
     print(f"sketch_batch_size: {args.sketch_batch_size}")
     print(f"seed: {args.seed}")
+    print(f"url: {args.url}")
     print(f"txt2sktch: {args.txt2sktch}")
     print(f"sktch2vec: {args.sktch2vec}")
     print(f"vec2img: {args.vec2img}")
