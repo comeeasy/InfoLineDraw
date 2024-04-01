@@ -46,7 +46,7 @@ fi
 # to "stable-sd-webui/models/Lora" using gdwon. And Path existence must be checked
 if [ -d "$LORA_MODEL_PATH" ]; then
     echo "Downloading Lora model..."
-    gdown "https://drive.google.com/uc?id=1-0npDwTU4YSe5JlOly6Va1fuz_tjlZzh" -O "${LORA_MODEL_PATH}/Line_Art_SDXL.safetensors"
+    gdown "https://drive.google.com/uc?id=1Gy4PVhuDVfztdTFimMtc7hfngmL2stm2" -O "${LORA_MODEL_PATH}/Line_Art_SDXL.safetensors"
 else
     echo "Directory $LORA_MODEL_PATH does not exist. Skipping download."
 fi
