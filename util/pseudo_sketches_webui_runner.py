@@ -49,6 +49,8 @@ class WebuiAPI:
         if sketch is None:
             prompt = f"ais-lineart, a {prompt}, <lora:Line_Art_SDXL:1.2>"
 
+        print(f"prompt: {prompt}")
+
         # Prepare the data payload
         data = {
             "prompt": prompt,
@@ -77,7 +79,7 @@ class WebuiAPI:
                     "args": [{
                         "input_image": encoded_image,
                         "model": "diffusers_xl_canny_full [2b69fca4]",
-                        "weight": 0.7,
+                        "weight": 0.5,
                         "resize_mode": 0
                     }]
                 }
