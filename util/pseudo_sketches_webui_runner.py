@@ -46,9 +46,12 @@ class WebuiAPI:
             'Content-Type': 'application/json'
         }
 
+        if sketch is None:
+            prompt = f"ais-lineart, a {prompt}, <lora:Line_Art_SDXL:1.2>"
+
         # Prepare the data payload
         data = {
-            "prompt": f"ais-lineart, a {prompt}, <lora:Line_Art_SDXL:1.2>",
+            "prompt": prompt,
             "negative_prompt":
                 "bad, worst",
             "seed": seed,
