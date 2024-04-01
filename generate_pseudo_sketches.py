@@ -20,6 +20,7 @@ def main(args):
     # Open the file and load its contents
     with open(args.input_txt, 'r') as file:
         nouns = list(map(lambda x: x.strip(), file.readlines()))
+        nouns = [noun for noun in nouns if noun != ''] # 줄바꿈 문자 들어갈 시 제거
     
     # Initiate webui runner to run Stable Diffusion
     if args.txt2sktch or args.vec2img:
@@ -29,20 +30,22 @@ def main(args):
     
     bmp_sketches_filename = lambda noun_for_c, i: f"{noun_for_c}_{i}.bmp"
     for noun in tqdm(nouns):
-        # try:
-        # noun name for FDoG
-        noun_for_c = noun.replace(" ", "_")
-        # # Generate image
-        txt2sketch(args, api, noun, noun_for_c, bmp_sketches_filename)
+        try:
+            # noun name for FDoG
+            noun_for_c = noun.replace(" ", "_")
+            # # Generate image
+            txt2sketch(args, api, noun, noun_for_c, bmp_sketches_filename)
 
-        # For generated images do..
-        vectorize_gray_sketch(args, noun_for_c, exist_ok=True)
-            
-        # # Generate image using ControlNet with sketch
-        vec2img(args, api, noun_for_c, noun)
-        # except:
-        #    with open("error_nouns.txt", "a+") as f:
-        #        f.write(f"noun\n")
+            # For generated images do..
+            vectorize_gray_sketch(args, noun_for_c, exist_ok=True)
+                
+            # # Generate image using ControlNet with sketch
+            vec2img(args, api, noun_for_c, noun)
+        except KeyboardInterrupt:
+            exit(0)
+        except:
+           with open("error_nouns.txt", "a+") as f:
+               f.write(f"{noun}\n")
 
 def vec2img(args, api, noun_for_c, noun):
     # Generate image using ControlNet with sketch
