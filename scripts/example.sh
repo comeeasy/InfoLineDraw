@@ -1,3 +1,5 @@
+#! /bin/bash
+
 export CUDA_VISIBLE_DEVICES=1
 
 img_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/imgs"
