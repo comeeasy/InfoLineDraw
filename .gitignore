@@ -2,3 +2,6 @@ pseudo_img_sketch_dataset/
 BoostingMonocularDepth
 checkpoints/
 CGVM_FDoG/
+dataset/
+lightning_logs/
+train_dset/
