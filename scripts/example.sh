@@ -1,10 +1,10 @@
 #! /bin/bash
 
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 
-img_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/imgs"
-sketch_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/sketches"
-depth_dir="/home/joono/InfoLineDraw/pseudo_img_sketch_dataset/depths"
+img_dir="/home/joono/media2/workspace/InfoLineDraw/dataset/imgs"
+sketch_dir="/home/joono/media2/workspace/InfoLineDraw/dataset/vecsktch"
+depth_dir="/home/joono/media2/workspace/InfoLineDraw/dataset/depths"
 
 for arg in "$@"
 do
@@ -12,7 +12,7 @@ case $arg in
     depth)
     ### Generate depth maps ###
     cd ./BoostingMonocularDepth
-    python run.py --Final --max_res 3000 --data_dir $img_dir --output_dir $depth_dir  --depthNet 0
+    python run.py --Final --max_res 1024 --data_dir $img_dir --output_dir $depth_dir  --depthNet 0
     ;;
     train)
     ### Train ###

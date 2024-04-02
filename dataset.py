@@ -19,47 +19,58 @@ from PIL import Image
 from base_dataset import BaseDataset, get_params, get_transform
 import json
 
+import lightning.pytorch as pl
 
-
-
-import pytorch_lightning as pl
+from pathlib import Path
 
 
 class UnpairedDepthDataModule(pl.LightningDataModule):
-    def __init__(self, root, root2, opt, transform_r=None, batch_size=4, num_workers=4, midas=False, depthroot=''):
+    def __init__(self, opt, transform_r, num_workers):
         super().__init__()
-        self.root = root
-        self.root2 = root2
+        self.dataset_root = opt.dataset_root
+        
         self.opt = opt
         self.transform_r = transform_r
-        self.batch_size = batch_size
+        self.batch_size = opt.batchSize
         self.num_workers = num_workers
-        self.midas = midas
-        self.depthroot = depthroot
+        self.midas = opt.midas
 
     def setup(self, stage=None):
-        # Assign train/val datasets for use in dataloaders
-        if stage == 'fit' or stage is None:
-            self.train_dataset = UnpairedDepthDataset(
-                root=self.root,
-                root2=self.root2,
-                opt=self.opt,
-                transforms_r=self.transform_r,
-                mode='train',
-                midas=self.midas,
-                depthroot=self.depthroot
-            )
-            # You can also set up a separate validation dataset here
-        if stage == 'test' or stage is None:
-            self.test_dataset = UnpairedDepthDataset(
-                root=self.root,
-                root2=self.root2,
-                opt=self.opt,
-                transforms_r=self.transform_r,
-                mode='test',
-                midas=self.midas,
-                depthroot=self.depthroot
-            )
+        # train
+        img_root_path = os.path.join(self.dataset_root, "train", "imgs")
+        if not Path(img_root_path).exists(): raise RuntimeError(f"There is no directory of {img_root_path}")
+        sktch_root_path = os.path.join(self.dataset_root, "train", "sketches")
+        if not Path(sktch_root_path).exists(): raise RuntimeError(f"There is no directory of {sktch_root_path}")
+        depth_root_path = os.path.join(self.dataset_root, "train", "depths")
+        if not Path(depth_root_path).exists(): raise RuntimeError(f"There is no directory of {depth_root_path}")
+        
+        self.train_dataset = UnpairedDepthDataset(
+            root=img_root_path,
+            root2=sktch_root_path,
+            opt=self.opt,
+            transforms_r=self.transform_r,
+            mode='train',
+            midas=self.midas,
+            depthroot=depth_root_path,
+        )
+        
+        # test
+        img_root_path = os.path.join(self.dataset_root, "test", "imgs")
+        if not Path(img_root_path).exists(): raise RuntimeError(f"There is no directory of {img_root_path}")
+        sktch_root_path = os.path.join(self.dataset_root, "test", "sketches")
+        if not Path(sktch_root_path).exists(): raise RuntimeError(f"There is no directory of {sktch_root_path}")
+        depth_root_path = os.path.join(self.dataset_root, "test", "depths")
+        if not Path(depth_root_path).exists(): raise RuntimeError(f"There is no directory of {depth_root_path}")
+        
+        self.test_dataset = UnpairedDepthDataset(
+            root=img_root_path,
+            root2=sktch_root_path,
+            opt=self.opt,
+            transforms_r=self.transform_r,
+            mode='train',
+            midas=self.midas,
+            depthroot=depth_root_path,
+        )
     
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
@@ -72,7 +83,7 @@ class UnpairedDepthDataModule(pl.LightningDataModule):
 
 
 
-IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG']
+IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.bmp', '.BMP']
 
 def unpickle(file):
     import pickle
@@ -101,8 +112,8 @@ def make_dataset(dir, stop=10000):
 class UnpairedDepthDataset(data.Dataset):
     def __init__(self, root, root2, opt, transforms_r=None, mode='train', midas=False, depthroot=''):
 
-        self.root = root
-        self.mode = mode
+        self.root = root # for img
+        self.mode = mode # for sktch
         self.midas = midas
 
         all_img = make_dataset(self.root)

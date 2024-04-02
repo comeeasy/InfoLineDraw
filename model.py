@@ -1,23 +1,36 @@
+import os
+
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
-import functools
-from torchvision import models
-from torch.autograd import Variable
-import numpy as np
-import math
-
-import pytorch_lightning as pl
 from torch import optim
+from torchvision import models
+from torchvision.utils import save_image
+
+import lightning.pytorch as pl
+
 import networks
 import clip
 
-class InfoDraw(pl.LightningModule):
+from pathlib import Path
+
+# from utils import ReplayBuffer
+from utils import LambdaLR, createNRandompatches
+import networks
+
+
+
+class InfoLineDraw(pl.LightningModule):
     def __init__(self, opt):
         super().__init__()
-        self.save_hyperparameters(opt)
-        # Models
         
+        self.opt = opt
+        self.save_hyperparameters(opt)
+        
+        # Use manual optimization method
+        self.automatic_optimization = False
+        
+        # Models
         print(f"Load generator A: Generator(input_nc={opt.input_nc}, output_nc={opt.output_nc}, n_blocks={opt.n_blocks})")
         self.netG_A = Generator(opt.input_nc, opt.output_nc, opt.n_blocks)
         print(f"Load generator B: Generator(input_nc={opt.input_nc}, output_nc={opt.output_nc}, n_blocks={opt.n_blocks})")
@@ -38,10 +51,11 @@ class InfoDraw(pl.LightningModule):
         self.netD_B = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm, use_sigmoid=False)
         
         # Loss functions
-        self.criterionGAN = networks.GANLoss(use_lsgan=True)
+        self.criterionGAN = networks.GANLoss(use_lsgan=True, target_real_label=1.0, target_fake_label=0.0, reduceme=True)
         self.criterionCycle = torch.nn.L1Loss()
-        self.criterionGeom = torch.nn.BCELoss()
-        self.criterionCLIP = torch.nn.MSELoss() if not opt.cos_clip else torch.nn.CosineSimilarity(dim=1, eps=1e-08)
+        self.criterionCycleB = torch.nn.L1Loss()
+        self.criterionGeom = torch.nn.BCELoss(reduce=True)
+        self.criterionCLIP = torch.nn.MSELoss(reduce=True) if not opt.cos_clip else torch.nn.CosineSimilarity(dim=1, eps=1e-08)
         
         # Load pretrained models
         print(f"Load recognition model: InceptionV3(num_classes={opt.num_classes}, mode={opt.mode}, use_aux=True, pretrain=True, freeze=True, every_feat={opt.every_feat==1})")
@@ -52,106 +66,213 @@ class InfoDraw(pl.LightningModule):
         self.clip_model, _ = clip.load("ViT-B/32", device=self.device, jit=False)
         clip.model.convert_weights(self.clip_model)
         
+        
+        
     def forward(self, x):
         pass
     
-    def training_step(self, batch, batch_idx, optimizer_idx):
-        img_r, img_depth, real_B = batch['r'], batch['depth'], batch['line']
+    def training_step(self, batch, batch_idx):
+        real_A, real_B, recover_geom, _ = batch['r'], batch['line'], batch['depth'], batch['label']
         
-        # Assuming your model has been appropriately defined and moved to the right device
-        # e.g., self.netG_A, self.netG_B, self.netD_A, self.netD_B, self.netGeom, etc.
-        # Also, ensure loss functions are defined, e.g., self.criterionGAN, self.criterionCycle, etc.
-
         # Generator A -> B
-        fake_B = self.netG_A(img_r)
+        fake_B = self.netG_A(real_A)
         rec_A = self.netG_B(fake_B)  # Reconstruction A
         
         # Generator B -> A
         fake_A = self.netG_B(real_B)
         rec_B = self.netG_A(fake_A)  # Reconstruction B
 
-        # Geometry prediction loss (if applicable)
-        loss_cycle_Geom = 0
-        if self.opt.use_geom:
-            # Prepare input for geometry prediction
-            geom_input = fake_B if fake_B.size(1) == 3 else fake_B.repeat(1, 3, 1, 1)
-            pred_geom = self.netGeom(geom_input)
-            pred_geom = (pred_geom + 1) / 2.0  # Normalize to [0, 1] if needed
-            loss_cycle_Geom = self.criterionGeom(pred_geom, img_depth)
+        # losses
+        loss_G, loss_D_A, loss_D_B = self.compute_generator_discrimanator_losses(real_A, real_B, fake_A, fake_B, rec_A, rec_B, recover_geom)
+
+        # Update weights
+        optimizers= self.optimizers()
+        if self.hparams.use_geom and self.hparams.finetune_netGeom:
+            optimizer_G_A, optimizer_G_B, optimizer_D_A, optimizer_D_B, optimizer_Geom = optimizers
+        else:    
+            optimizer_G_A, optimizer_G_B, optimizer_D_A, optimizer_D_B = optimizers
         
-        # Discriminator losses
-        loss_D_A, loss_D_B = self.compute_discriminator_losses(real_A=img_r, real_B=real_B, fake_A=fake_A, fake_B=fake_B)
         
-        # Generator losses
-        loss_RC, loss_GAN, loss_recog = self.compute_generator_losses(img_r, real_B, fake_A, fake_B, rec_A, rec_B)
+        optimizer_G_A.zero_grad()
+        optimizer_G_B.zero_grad()
+        if self.opt.finetune_netGeom == 1:
+            optimizer_Geom.zero_grad()
+        loss_G.backward()
+        optimizer_G_A.step()
+        optimizer_G_B.step()
+        if self.opt.finetune_netGeom == 1:
+            optimizer_Geom.step()
         
-        # Combine losses
-        loss_G = self.cond_cycle * loss_RC + \
-                 self.condGAN * loss_GAN + \
-                 self.opt.condGeom * loss_cycle_Geom + \
-                 self.cond_recog * loss_recog
+        optimizer_D_A.zero_grad()
+        loss_D_A.backward()
+        optimizer_D_A.step()
+        
+        optimizer_D_B.zero_grad()
+        loss_D_B.backward()
+        optimizer_D_B.step()
         
         # Logging
-        self.log('loss_G', loss_G)
-        self.log('loss_D_A', loss_D_A)
-        self.log('loss_D_B', loss_D_B)
+        self.log('train/loss_G', loss_G, batch_size=self.opt.batchSize, prog_bar=True)
+        self.log('train/loss_D_A', loss_D_A, batch_size=self.opt.batchSize, prog_bar=True)
+        self.log('train/loss_D_B', loss_D_B, batch_size=self.opt.batchSize, prog_bar=True)
         
-        # Perform different actions based on optimizer index
-        if optimizer_idx == 0:
-            return loss_G
-        elif optimizer_idx == 1:
-            return loss_D_A
-        elif optimizer_idx == 2:
-            return loss_D_B
-        # Include conditions for other optimizers if there are more
+        if batch_idx % 100 == 0:
+            save_image(real_A, os.path.join(self.result_img_dir, f"realA_train_{self.current_epoch}_{batch_idx}.png"))
+            save_image(fake_B, os.path.join(self.result_img_dir, f"fakeB_train_{self.current_epoch}_{batch_idx}.png"))
+        
+        
+    def validation_step(self, batch, batch_idx):
+        real_A, real_B, recover_geom, _ = batch['r'], batch['line'], batch['depth'], batch['label']
+        
+        # Generator A -> B
+        fake_B = self.netG_A(real_A)
+        rec_A = self.netG_B(fake_B)  # Reconstruction A
+        
+        # Generator B -> A
+        fake_A = self.netG_B(real_B)
+        rec_B = self.netG_A(fake_A)  # Reconstruction B
 
-    # Example helper function for discriminator losses
-    def compute_discriminator_losses(self, real_A, real_B, fake_A, fake_B):
-        # Discriminator A Loss: Distinguish real A from fake A images
-        pred_real_A = self.netD_A(real_A)
-        loss_D_A_real = self.criterionGAN(pred_real_A, True)
+        # losses
+        loss_G, loss_D_A, loss_D_B = self.compute_generator_discrimanator_losses(real_A, real_B, fake_A, fake_B, rec_A, rec_B, recover_geom)
         
-        pred_fake_A = self.netD_A(fake_A.detach())  # Detach to stop gradients to generator
-        loss_D_A_fake = self.criterionGAN(pred_fake_A, False)
+        # Logging
+        self.log('val/loss_G', loss_G, batch_size=self.opt.batchSize, prog_bar=True)
+        self.log('val/loss_D_A', loss_D_A, batch_size=self.opt.batchSize, prog_bar=True)
+        self.log('val/loss_D_B', loss_D_B, batch_size=self.opt.batchSize, prog_bar=True)
+        if batch_idx % 10 == 0:
+            save_image(real_A, os.path.join(self.result_img_dir, f"realA_val_{self.current_epoch}_{batch_idx}.png"))
+            save_image(fake_B, os.path.join(self.result_img_dir, f"fakeB_val_{self.current_epoch}_{batch_idx}.png"))
         
-        # Discriminator B Loss: Distinguish real B from fake B images
-        pred_real_B = self.netD_B(real_B)
-        loss_D_B_real = self.criterionGAN(pred_real_B, True)
         
-        pred_fake_B = self.netD_B(fake_B.detach())  # Detach to stop gradients to generator
-        loss_D_B_fake = self.criterionGAN(pred_fake_B, False)
         
-        # Combine losses for each discriminator
-        loss_D_A = (loss_D_A_real + loss_D_A_fake) * 0.5
-        loss_D_B = (loss_D_B_real + loss_D_B_fake) * 0.5
-    
-        return loss_D_A, loss_D_B
+    def test_step(self, batch, batch_idx):
+        real_A, real_B, recover_geom, _ = batch['r'], batch['line'], batch['depth'], batch['label']
+        
+        # Generator A -> B
+        fake_B = self.netG_A(real_A)
+        rec_A = self.netG_B(fake_B)  # Reconstruction A
+        
+        # Generator B -> A
+        fake_A = self.netG_B(real_B)
+        rec_B = self.netG_A(fake_A)  # Reconstruction B
 
-    def compute_geom_loss(self, ...):
-        ...
+        # losses
+        loss_G, loss_D_A, loss_D_B = self.compute_generator_discrimanator_losses(real_A, real_B, fake_A, fake_B, rec_A, rec_B, recover_geom)
+        
+        # Logging
+        self.log('test/loss_G', loss_G, batch_size=self.opt.batchSize, prog_bar=True)
+        self.log('test/loss_D_A', loss_D_A, batch_size=self.opt.batchSize, prog_bar=True)
+        self.log('test/loss_D_B', loss_D_B, batch_size=self.opt.batchSize, prog_bar=True)
 
     # Example helper function for generator losses
-    def compute_generator_losses(self, real_A, real_B, fake_A, fake_B, rec_A, rec_B):
-        # Adversarial loss to fool discriminators
-        pred_fake_A = self.netD_A(fake_A)
-        loss_G_A = self.criterionGAN(pred_fake_A, True)
+    def compute_generator_discrimanator_losses(self, real_A, real_B, fake_A, fake_B, rec_A, rec_B, recover_geom):
         
-        pred_fake_B = self.netD_B(fake_B)
-        loss_G_B = self.criterionGAN(pred_fake_B, True)
-        
-        # Cycle-consistency loss
-        loss_cycle_A = self.criterionCycle(rec_A, real_A) # * self.hparams.lambda_A
-        loss_cycle_B = self.criterionCycle(rec_B, real_B) # * self.hparams.lambda_B
-        
+        if self.opt.use_geom == 1:
+            geom_input = fake_B
+            if geom_input.size()[1] == 1:
+                geom_input = geom_input.repeat(1, 3, 1, 1)
+            _, geom_input = self.net_recog(geom_input)
+
+            pred_geom = self.netGeom(geom_input)
+            pred_geom = (pred_geom+1)/2.0 ###[-1, 1] ---> [0, 1]
+
+            loss_cycle_Geom = self.criterionGeom(pred_geom, recover_geom)
+        else:
+            loss_cycle_Geom = 0
+
+        ########## loss A Reconstruction ##########
+
+        loss_G_A = self.criterionGAN(self.netD_A(fake_A), True)
+
+        # GAN loss D_B(G_B(B))
+        loss_G_B = self.criterionGAN(self.netD_B(fake_B), True)
+
+        # Forward cycle loss || G_B(G_A(A)) - A||
+        loss_cycle_A = self.criterionCycle(rec_A, real_A)
+        loss_cycle_B = self.criterionCycleB(rec_B, real_B)
+        # combined loss and calculate gradients
+
         loss_GAN = loss_G_A + loss_G_B
-        loss_RC  = loss_cycle_A + loss_cycle_B
+        loss_RC = loss_cycle_A + loss_cycle_B
+
+        loss_G = self.opt.cond_cycle*loss_RC + self.opt.condGAN*loss_GAN
+        loss_G += self.opt.condGeom*loss_cycle_Geom
+
+
+        ### semantic loss
+        loss_recog = 0
+
+        # renormalize mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711)
+        recog_real = real_A
+        recog_real0 = (recog_real[:, 0, :, :].unsqueeze(1) - 0.48145466) / 0.26862954
+        recog_real1 = (recog_real[:, 1, :, :].unsqueeze(1) - 0.4578275) / 0.26130258
+        recog_real2 = (recog_real[:, 2, :, :].unsqueeze(1) - 0.40821073) / 0.27577711
+        recog_real = torch.cat([recog_real0, recog_real1, recog_real2], dim=1)
+
+        line_input = fake_B
+        if self.opt.output_nc == 1:
+            line_input_channel0 = (line_input - 0.48145466) / 0.26862954
+            line_input_channel1 = (line_input - 0.4578275) / 0.26130258
+            line_input_channel2 = (line_input - 0.40821073) / 0.27577711
+            line_input = torch.cat([line_input_channel0, line_input_channel1, line_input_channel2], dim=1)
+
+        patches_r = [torch.nn.functional.interpolate(recog_real, size=224)]  #The resize operation on tensor.
+        patches_l = [torch.nn.functional.interpolate(line_input, size=224)]
+
+        ## patch based clip loss
+        if self.opt.N_patches > 1:
+            patches_r2, patches_l2 = createNRandompatches(recog_real, line_input, self.opt.N_patches, self.opt.patch_size)
+            patches_r += patches_r2
+            patches_l += patches_l2
+
+        loss_recog = 0
+        for patchnum in range(len(patches_r)):
+
+            real_patch = patches_r[patchnum]
+            line_patch = patches_l[patchnum]
+
+            feats_r = self.clip_model.encode_image(real_patch).detach()
+            feats_line = self.clip_model.encode_image(line_patch)
+
+            myloss_recog = self.criterionCLIP(feats_line, feats_r.detach())
+            if self.opt.cos_clip == 1:
+                myloss_recog = 1.0 - loss_recog
+                myloss_recog = torch.mean(loss_recog)
+
+            patch_factor = (1.0 / float(self.opt.N_patches))
+            if patchnum == 0:
+                patch_factor = 1.0
+            loss_recog += patch_factor*myloss_recog
         
-        # Combine generator losses
-        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B
+        loss_G += self.opt.cond_recog* loss_recog
         
-        # If there are additional losses (e.g., identity loss, perceptual loss), include them here
+        ##########  Discriminator A ##########
+
+        # Fake loss
+        pred_fake_A = self.netD_A(fake_A.detach())
+        loss_D_A_fake = self.criterionGAN(pred_fake_A, False)
+
+        # Real loss
+
+        pred_real_A = self.netD_A(real_A)
+        loss_D_A_real = self.criterionGAN(pred_real_A, True)
+
+        # Total loss
+        loss_D_A = torch.mean(self.opt.condGAN * (loss_D_A_real + loss_D_A_fake) ) * 0.5
+
+        # Fake loss
+        pred_fake_B = self.netD_B(fake_B.detach())
+        loss_D_B_fake = self.criterionGAN(pred_fake_B, False)
+
+        # Real loss
+
+        pred_real_B = self.netD_B(real_B)
+        loss_D_B_real = self.criterionGAN(pred_real_B, True)
+
+        # Total loss
+        loss_D_B = torch.mean(self.opt.condGAN * (loss_D_B_real + loss_D_B_fake) ) * 0.5
         
-        return loss_G, loss_G_A, loss_G_B, loss_cycle_A, loss_cycle_B
+        return loss_G, loss_D_A, loss_D_B
 
     def configure_optimizers(self):
         optimizer_G_A = optim.Adam(self.netG_A.parameters(), lr=self.hparams.lr, betas=(0.5, 0.999))
@@ -159,15 +280,52 @@ class InfoDraw(pl.LightningModule):
         optimizer_D_A = optim.Adam(self.netD_A.parameters(), lr=self.hparams.lr, betas=(0.5, 0.999))
         optimizer_D_B = optim.Adam(self.netD_B.parameters(), lr=self.hparams.lr, betas=(0.5, 0.999))
         
+        lr_scheduler_G_A = torch.optim.lr_scheduler.LambdaLR(optimizer_G_A, lr_lambda=LambdaLR(self.opt.n_epochs, self.opt.epoch, self.opt.decay_epoch).step)
+        lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(optimizer_D_B, lr_lambda=LambdaLR(self.opt.n_epochs, self.opt.epoch, self.opt.decay_epoch).step)
+        lr_scheduler_G_B = torch.optim.lr_scheduler.LambdaLR(optimizer_G_B, lr_lambda=LambdaLR(self.opt.n_epochs, self.opt.epoch, self.opt.decay_epoch).step)
+        lr_scheduler_D_A = torch.optim.lr_scheduler.LambdaLR(optimizer_D_A, lr_lambda=LambdaLR(self.opt.n_epochs, self.opt.epoch, self.opt.decay_epoch).step)
+
+        optimizers = [optimizer_G_A, optimizer_G_B, optimizer_D_A, optimizer_D_B]
+        lr_schedulers = [lr_scheduler_G_A, lr_scheduler_G_B, lr_scheduler_D_A, lr_scheduler_D_B]
+        
         if self.hparams.use_geom and self.hparams.finetune_netGeom:
             optimizer_Geom = optim.Adam(self.netGeom.parameters(), lr=self.hparams.lr, betas=(0.5, 0.999))
-            return [optimizer_G_A, optimizer_G_B, optimizer_D_A, optimizer_D_B, optimizer_Geom], []
-        else:
-            return [optimizer_G_A, optimizer_G_B, optimizer_D_A, optimizer_D_B], []
+            optimizers.append(optimizer_Geom)
+        
+        return optimizers, lr_schedulers
 
+    def on_fit_start(self) -> None:
+        # Logging images
+        self.result_img_dir = os.path.join(self.logger.log_dir, "result_imgs")
+        if not Path(self.result_img_dir).exists():
+            Path(self.result_img_dir).mkdir(parents=True, exist_ok=True)
+        
+    def on_train_epoch_end(self) -> None:
+        lr_scheduler_G_A, lr_scheduler_D_B, lr_scheduler_G_B, lr_scheduler_D_A = self.lr_schedulers()
+        
+        # Update learning rates
+        lr_scheduler_G_A.step()
+        lr_scheduler_G_B.step()
+        lr_scheduler_D_A.step()
+        lr_scheduler_D_B.step()
 
+        self.opt.checkpoint_dir = self.logger.log_dir
+        
+        if self.current_epoch % self.opt.save_epoch_freq == 0:
+            torch.save(self.netG_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netG_A_{self.current_epoch}.pth'))
+            if self.opt.finetune_netGeom == 1:
+                torch.save(self.netGeom.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netGeom_{self.current_epoch}.pth'))
+            if self.opt.slow == 0:
+                torch.save(self.netG_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netG_B_{self.current_epoch}.pth'))
+                torch.save(self.netD_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netD_A_{self.current_epoch}.pth'))
+                torch.save(self.netD_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netD_B_{self.current_epoch}.pth'))
 
-
+        torch.save(self.netG_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netG_A_latest.pth'))
+        torch.save(self.netG_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netG_B_latest.pth'))
+        torch.save(self.netD_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netD_B_latest.pth'))
+        torch.save(self.netD_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netD_A_latest.pth'))
+        if self.opt.finetune_netGeom == 1:
+            torch.save(self.netGeom.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netGeom_latest.pth'))
 
 
 

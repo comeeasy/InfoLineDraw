@@ -87,7 +87,9 @@ class LambdaLR():
         self.decay_start_epoch = decay_start_epoch
 
     def step(self, epoch):
-        return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch) / (self.n_epochs - self.decay_start_epoch)
+        lr = 1.0 - max(0, epoch + self.offset - self.decay_start_epoch) / (self.n_epochs - self.decay_start_epoch)
+        print(f"lr: {lr}")
+        return lr
 
 
 def weights_init_normal(m):
