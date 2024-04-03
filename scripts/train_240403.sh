@@ -1,5 +1,13 @@
 #! /bin/bash
 
+######## 240403 실험 ########
+#
+# 앞서 수행한 실험의 결과가 좋지 않음. 여전히 음영이 남음.
+# 이를 해결하기 위해 학습적으로는 geom loss를 안사용할 것임.
+# 
+# train 에서 --use_geom 0 으로 셋팅
+# 
+############################
 
 export CUDA_VISIBLE_DEVICES=0
 
@@ -11,7 +19,7 @@ case $arg in
     train)
     ### Train ###
     python train_pl.py \
-        --name 240402_train_with_26000 \
+        --name 240403 \
         --dataset_root $dataset_root \
         --dataroot "" \
         --depthroot "" \
@@ -28,6 +36,7 @@ case $arg in
         --crop_size 512 \
         --num_classes 107 \
         --lr 0.0001 \
+        --use_geom 0 \
     ;;
     test)
     ### Test ###

@@ -102,7 +102,7 @@ def train():
         mode="min",
         filename='wallpaper_fault-{epoch:02d}-{val_F1Score:.2f}',
         save_last=True,
-        every_n_epochs=100,
+        every_n_epochs=10,
     )
 
     trainer = pl.Trainer(
@@ -114,7 +114,6 @@ def train():
     )
     
     model = InfoLineDraw(opt)
-    print(type(model))
     
     trainer.fit(model=model, datamodule=data_module)
 

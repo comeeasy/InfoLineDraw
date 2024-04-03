@@ -295,10 +295,15 @@ class InfoLineDraw(pl.LightningModule):
         return optimizers, lr_schedulers
 
     def on_fit_start(self) -> None:
-        # Logging images
+        # Logging images path
         self.result_img_dir = os.path.join(self.logger.log_dir, "result_imgs")
         if not Path(self.result_img_dir).exists():
             Path(self.result_img_dir).mkdir(parents=True, exist_ok=True)
+            
+        # Checkpoints dir path
+        self.checkpoints_path = os.path.join(self.logger.log_dir, "checkpoints")
+        if not Path(self.checkpoints_path).exists():
+            Path(self.checkpoints_path).mkdir(parents=True, exist_ok=True)
         
     def on_train_epoch_end(self) -> None:
         lr_scheduler_G_A, lr_scheduler_D_B, lr_scheduler_G_B, lr_scheduler_D_A = self.lr_schedulers()
@@ -312,20 +317,20 @@ class InfoLineDraw(pl.LightningModule):
         self.opt.checkpoint_dir = self.logger.log_dir
         
         if self.current_epoch % self.opt.save_epoch_freq == 0:
-            torch.save(self.netG_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netG_A_{self.current_epoch}.pth'))
+            torch.save(self.netG_A.state_dict(), os.path.join(self.checkpoints_path, f'netG_A_{self.current_epoch}.pth'))
             if self.opt.finetune_netGeom == 1:
-                torch.save(self.netGeom.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netGeom_{self.current_epoch}.pth'))
+                torch.save(self.netGeom.state_dict(), os.path.join(self.checkpoints_path, f'netGeom_{self.current_epoch}.pth'))
             if self.opt.slow == 0:
-                torch.save(self.netG_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netG_B_{self.current_epoch}.pth'))
-                torch.save(self.netD_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netD_A_{self.current_epoch}.pth'))
-                torch.save(self.netD_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", f'netD_B_{self.current_epoch}.pth'))
+                torch.save(self.netG_B.state_dict(), os.path.join(self.checkpoints_path, f'netG_B_{self.current_epoch}.pth'))
+                torch.save(self.netD_A.state_dict(), os.path.join(self.checkpoints_path, f'netD_A_{self.current_epoch}.pth'))
+                torch.save(self.netD_B.state_dict(), os.path.join(self.checkpoints_path, f'netD_B_{self.current_epoch}.pth'))
 
-        torch.save(self.netG_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netG_A_latest.pth'))
-        torch.save(self.netG_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netG_B_latest.pth'))
-        torch.save(self.netD_B.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netD_B_latest.pth'))
-        torch.save(self.netD_A.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netD_A_latest.pth'))
+        torch.save(self.netG_A.state_dict(), os.path.join(self.checkpoints_path, 'netG_A_latest.pth'))
+        torch.save(self.netG_B.state_dict(), os.path.join(self.checkpoints_path, 'netG_B_latest.pth'))
+        torch.save(self.netD_B.state_dict(), os.path.join(self.checkpoints_path, 'netD_B_latest.pth'))
+        torch.save(self.netD_A.state_dict(), os.path.join(self.checkpoints_path, 'netD_A_latest.pth'))
         if self.opt.finetune_netGeom == 1:
-            torch.save(self.netGeom.state_dict(), os.path.join(self.logger.log_dir, "checkpoints", 'netGeom_latest.pth'))
+            torch.save(self.netGeom.state_dict(), os.path.join(self.checkpoints_path, 'netGeom_latest.pth'))
 
 
 

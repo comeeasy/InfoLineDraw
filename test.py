@@ -94,7 +94,7 @@ with torch.no_grad():
         net_recog.eval()
 
     # Load state dicts
-    net_G.load_state_dict(torch.load(os.path.join(opt.checkpoints_dir, opt.name, 'netG_A_%s.pth' % opt.which_epoch)))
+    net_G.load_state_dict(torch.load(os.path.join(opt.name, 'netG_A_%s.pth' % opt.which_epoch)))
     print('loaded', os.path.join(opt.checkpoints_dir, opt.name, 'netG_A_%s.pth' % opt.which_epoch))
 
     # Set model's test mode
